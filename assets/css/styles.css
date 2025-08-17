@@ -1,0 +1,117 @@
+/* Custom styles */
+[data-tooltip] {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Loading spinner */
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+    table.responsive-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+    }
+}
+
+.tooltip-box {
+  position: absolute;
+  background-color: #1f2937; /* Tailwind gray-800 */
+  color: white;
+  padding: 0.25rem 0.5rem; /* Tailwind px-2 py-1 */
+  font-size: 0.875rem; /* text-sm */
+  border-radius: 0.25rem; /* rounded */
+  z-index: 50;
+  pointer-events: none; /* tooltip doesn't block mouse events */
+  white-space: nowrap;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+}
+th {
+  cursor: pointer;
+  background-color: #f3f3f3;
+}
+th.asc::after {
+  content: " ▲";
+}
+th.desc::after {
+  content: " ▼";
+}
+
+/* Apply globally */
+* {
+  scrollbar-width: thin;       /* Firefox */
+  scrollbar-color: #80c0ff #f0f0f0; /* Firefox: thumb color, track color */
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 10px;                  /* Thin scrollbar width */
+  height: 10px;                 /* For horizontal scrollbars */
+}
+
+*::-webkit-scrollbar-track {
+  background: #f0f0f0;         /* Track color */
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #80c0ff;   /* Soft blue color */
+  border-radius: 10px;         /* Rounded corners */
+  border: 2px solid #f0f0f0;  /* Optional: padding around thumb */
+}
+
+/* Optional: hover effect */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #3399ff;
+}
+
+#categoryList > .category-tree{
+  padding-left: 0px;
+}
+
+.category-tree, .category-tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.category-tree li {
+  margin: 5px 0;
+  position: relative;
+}
+
+.category-tree label {
+  cursor: pointer;
+}
+
+.toggle, .toggle-placeholder {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+}
+
+.toggle-placeholder {
+  visibility: hidden; /* keeps alignment */
+}
+
+.toggle{
+  cursor: pointer;
+  user-select: none;
+}

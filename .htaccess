@@ -1,0 +1,11 @@
+# Disable directory listing
+Options -Indexes
+
+# Redirect 403 errors to custom 403.php
+ErrorDocument 403 /book_store/403.php
+
+# Redirect 404 errors to custom 404.php
+ErrorDocument 404 /book_store/404.php
+
+# (Optional) Redirect requests to index.html if someone tries to access the folder directly
+DirectoryIndex index.html index.php
