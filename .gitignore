@@ -4,6 +4,7 @@ todo.html
 # Test files
 install/install.sql_
 get_php.php
+test.php
 
 # Will generate after installation
 install/403.html

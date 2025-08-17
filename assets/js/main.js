@@ -86,4 +86,19 @@ document.addEventListener('DOMContentLoaded', function() {
           th.classList.toggle('desc', isAscending);
         });
     });
+
+    // sidebar menu
+    const sidebar = document.getElementById("sidebar");
+    const openBtn = document.getElementById("openSidebar");
+    const closeBtn = document.getElementById("closeSidebar");
+
+    openBtn.addEventListener("click", () => {
+        sidebar.classList.remove("-translate-x-full");
+        sidebar.classList.add("translate-x-0");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        sidebar.classList.add("-translate-x-full");
+        sidebar.classList.remove("translate-x-0");
+    });
 });

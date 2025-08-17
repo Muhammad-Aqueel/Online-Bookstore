@@ -111,7 +111,15 @@ th.desc::after {
   visibility: hidden; /* keeps alignment */
 }
 
-.toggle{
+.toggle {
   cursor: pointer;
   user-select: none;
+}
+
+.toggleicon {
+  color: #2a2a2a;
+}
+
+.toggleicon:hover {
+  color: #646464;
 }

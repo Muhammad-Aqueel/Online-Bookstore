@@ -41,7 +41,8 @@
                     __DIR__ . '/../assets/images/books/',
                     __DIR__ . '/../assets/digital_books/',
                     __DIR__ . '/../assets/previews/',
-                    __DIR__ . '/../assets/images/logos/'
+                    __DIR__ . '/../assets/images/logos/',
+                    __DIR__ . '/../config/'
                 ];
 
                 // Create each directory if it doesn't exist
@@ -69,10 +70,13 @@
 
                 // Create admin user
                 $hashedAdminPassword = password_hash($adminPassword, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, first_name, last_name, is_verified, is_active, is_approved) 
-                                    VALUES (?, ?, ?, 'admin', 'Admin', 'User', 1, 1, 1)");
+                $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, first_name, last_name, is_verified, is_active, is_approved)
+                SELECT ?, ?, ?, 'admin', 'Admin', 'User', 1, 1, 1
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM users WHERE username = ? OR email = ?
+                )");
                 // For username, we'll use the email as a simple default for admin
-                $stmt->execute([$adminusername, $adminEmail, $hashedAdminPassword]);
+                $stmt->execute([$adminusername, $adminEmail, $hashedAdminPassword, $adminusername, $adminEmail]);
 
                 // Dynamically determine BASE_URL
                 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
@@ -190,10 +194,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookstore Installation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-sky-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl m-12"> 
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl m-6"> 
         <h1 class="text-2xl font-bold text-sky-800 mb-6 text-center">Bookstore Installation</h1>
         
         <?php if (!empty($errors)): ?>
@@ -238,10 +243,10 @@
                 </div>
 
                 <!-- Connection Check Buttons -->
-                <div class="mb-3 flex justify-between">
+                <div class="mb-3 flex flex-wrap justify-center gap-2">
                     <button 
                         type="button" 
-                        class="border border-gray-400 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded flex items-center gap-2"
+                        class="border border-gray-400 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded flex items-center gap-2 w-auto"
                         onclick="checkConnection()"
                     >
                         <i class="fas fa-plug"></i> Check Host Connection
@@ -249,7 +254,7 @@
 
                     <button 
                         type="button" 
-                        class="border border-gray-400 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded flex items-center gap-2"
+                        class="border border-gray-400 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded flex items-center gap-2 w-auto"
                         onclick="checkDatabase()"
                     >
                         <i class="fas fa-database"></i> Check Database Existence
