@@ -201,7 +201,6 @@ book_store/
 │   ├── auth.php
 │   ├── footer.php
 │   ├── header.php
-│   ├── header copy.php
 │   └── helpers.php
 │
 ├── install/
