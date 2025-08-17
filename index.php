@@ -7,7 +7,6 @@ if (!file_exists(__DIR__ . '/config/database.php')) {
 }
 
 // If database.php exists, proceed with normal application loading
-session_start(); // Start the session here, once per request
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/auth.php';
 
