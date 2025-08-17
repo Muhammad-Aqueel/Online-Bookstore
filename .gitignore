@@ -11,4 +11,7 @@ install/.htaccess
 config/database.php
 
 # Extra uploads
-logo_689c10673fcf9.png
+assets/digital_books/*.*
+assets/images/books/*.*
+assets/images/logos/*.*
+assets/previews/*.*
