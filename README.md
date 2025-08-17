@@ -73,6 +73,12 @@ A complete **online bookstore** built with **plain PHP (PDO)** and **MySQL**, fe
 
 ---
 
+## Notice before installation
+**Warning:** Sometimes antivirus detect `test_connection.php` as,
+**Type of risk:** `webshell.phpex.post.eval`
+due to its checking for host and database connection(code), so allow this file in antivrius or add in ignore list without any worries.
+---
+
 ## Installation
 
 ### Prerequisites
@@ -155,7 +161,6 @@ book_store/
 │   ├── images/
 │   │   ├── books/
 │   │   ├── logos/
-│   │   │   └── logo_689c10673fcf9.png
 │   │   └── users/
 │   │       └── default.png
 │   ├── js/
