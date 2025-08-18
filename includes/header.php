@@ -98,7 +98,7 @@
                     </button>
 
                     <!-- Suggestions container -->
-                    <div id="searchSuggestions" class="absolute left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden overflow-y-scroll max-h-[207px]"></div>
+                    <div id="searchSuggestions" class="absolute left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden overflow-y-auto max-h-[207px]"></div>
                 </div>
             </form>
             <!-- Right side menu -->
@@ -140,6 +140,7 @@
                                     <a href="<?= BASE_URL ?>/admin/books.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-book mr-2"></i>Books</a>
                                     <a href="<?= BASE_URL ?>/admin/orders.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-shopping-cart mr-2"></i>Orders</a>
                                     <a href="<?= BASE_URL ?>/admin/earnings.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-chart-line mr-2"></i>Earnings</a>
+                                    <a href="<?= BASE_URL ?>/admin/messages.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-envelope mr-2"></i>Messages</a>
                                     <a href="<?= BASE_URL ?>/admin/sellers.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-user-check mr-2"></i>Seller</a>
                                     <a href="<?= BASE_URL ?>/admin/users.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-users mr-2"></i>Users</a>
                                     <a href="<?= BASE_URL ?>/admin/settings.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-cog mr-2"></i>Settings</a>
@@ -150,11 +151,14 @@
                                     <a href="<?= BASE_URL ?>/seller/add_book.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-circle-plus mr-2"></i>Add Book</a>
                                     <a href="<?= BASE_URL ?>/seller/earnings.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-chart-line mr-2"></i>Earnings</a>
                                     <a href="<?= BASE_URL ?>/seller/orders.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-shopping-cart mr-2"></i>Orders</a>
+                                    <a href="<?= BASE_URL ?>/seller/coupons.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fa-solid fa-ticket mr-2"></i>Coupons</a>
+                                    <a href="<?= BASE_URL ?>/seller/messages.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-envelope mr-2"></i>Messages</a>
                                 <?php endif; ?>
                                 <?php if ($isBuyer): ?>
                                     <a href="<?= BASE_URL ?>/buyer/" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-book mr-2"></i>Books</a>
                                     <a href="<?= BASE_URL ?>/buyer/orders.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-receipt mr-2"></i>My Orders</a>
                                     <a href="<?= BASE_URL ?>/buyer/library.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-book-reader mr-2"></i>My Digital Library</a>
+                                    <a href="<?= BASE_URL ?>/buyer/messages.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-envelope mr-2"></i>Messages</a>
                                     <a href="<?= BASE_URL ?>/buyer/wishlist.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-heart mr-2"></i>Wishlist</a>
                                 <?php endif; ?>
                                 <a href="<?= BASE_URL ?>/auth/account.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"><i class="fas fa-user-circle mr-2"></i>My Profile</a>

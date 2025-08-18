@@ -103,7 +103,7 @@
                                 <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
                             </span>
                             <?php if (currentUser()['id'] != $user['id']): // Prevent admin from deactivate themselves ?>
-                                <a href="<?= BASE_URL ?>/admin/users.php?toggle_status=<?php echo $user['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s active status?')">Toggle</a>
+                                <a href="<?= BASE_URL ?>/admin/users.php?toggle_status=<?php echo $user['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s status?')">Toggle</a>
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

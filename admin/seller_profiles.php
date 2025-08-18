@@ -7,7 +7,6 @@ requireAuth('admin');
 
 $pageTitle = "Seller Profile Management";
 $errors = [];
-$successMessage = '';
 $sellerProfileToEdit = null;
 
 // --- Handle Edit Seller Profile ---
@@ -71,7 +70,7 @@ if (isset($_POST['edit_seller_profile'])) {
                 $stmt->bindParam(':kyc_verified', $kycVerified, PDO::PARAM_BOOL);
                 $stmt->execute();
 
-                $successMessage = "Seller profile updated successfully!";
+                $_SESSION['success'] = "Seller profile updated successfully!";
                 // Unset edit mode
                 unset($_GET['edit_id']);
             } catch (PDOException $e) {
@@ -110,30 +109,19 @@ if (isset($_GET['edit_id'])) {
     }
 }
 
+$finalerror = implode("<br>", $errors);
+if ($errors) {
+    $_SESSION['error'] = $finalerror;
+}
 
 include '../includes/header.php';
 ?>
 
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <h1 class="text-3xl font-bold text-sky-800 mb-6">Seller Profile Management</h1>
-
-    <?php if (!empty($errors)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <?php foreach ($errors as $error): ?>
-                <p><?php echo htmlspecialchars($error); ?></p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($successMessage): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            <?php echo htmlspecialchars($successMessage); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($sellerProfileToEdit): ?>
+<?php if ($sellerProfileToEdit): ?>
+    <div class="container mx-auto px-4 pt-8 pb-6 max-w-2xl">
         <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Name: <?php echo htmlspecialchars($sellerProfileToEdit['username']); ?></h2>
+            <h1 class="text-2xl text-center font-bold text-sky-800 mb-6">Seller Profile Management</h1>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Name: <?php echo htmlspecialchars($sellerProfileToEdit['username']); ?></h2>
             <form method="post" enctype="multipart/form-data" class="space-y-4">
                 <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
                 <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($sellerProfileToEdit['id']); ?>">
@@ -183,12 +171,11 @@ include '../includes/header.php';
                 <a href="<?= BASE_URL ?>/admin/seller_profiles.php" class="inline-block px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-300 hover:text-gray-700 mb-2">Cancel Edit</a>
             </form>
         </div>
-    <?php endif; ?>
-
-</div>
-<div class="container mx-auto px-4 pb-8">
+    </div>
+<?php endif; ?>
+<div class="container mx-auto px-4 pb-8 mt-6">
     <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">All Seller Profiles</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">All Seller Profiles</h2>
         <?php if (empty($sellers)): ?>
             <p class="text-gray-600">No seller profiles found.</p>
         <?php else: ?>
@@ -215,7 +202,7 @@ include '../includes/header.php';
                                         <?php echo $seller['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
                                         <?php echo $seller['is_active'] ? 'Active' : 'Inactive'; ?>
                                     </span>
-                                    <a href="<?= BASE_URL ?>/admin/users.php?toggle_status=<?php echo $seller['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s active status?')">Toggle</a>
+                                    <a href="<?= BASE_URL ?>/admin/users.php?toggle_status=<?php echo $seller['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s status?')">Toggle</a>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="px-2 py-1 text-xs rounded-full 

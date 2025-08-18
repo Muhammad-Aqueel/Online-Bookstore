@@ -31,7 +31,7 @@ if (!$order) {
 
 // --- Fetch all items in this order ---
 $itemsStmt = $pdo->prepare("
-    SELECT oi.*, b,id as bookid, b.title, b.author, b.cover_image, b.isbn, b.is_physical, b.is_digital, sp.store_name
+    SELECT oi.*, b.id as bookid, b.title, b.author, b.cover_image, b.isbn, b.is_physical, b.is_digital, sp.store_name
     FROM order_items oi
     JOIN books b ON oi.book_id = b.id
     JOIN seller_profiles sp ON b.seller_id = sp.user_id

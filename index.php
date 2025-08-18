@@ -26,17 +26,23 @@ require_once __DIR__ . '/includes/header.php'; // Include the header
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <div class="text-center py-16 bg-gradient-to-r from-sky-600 to-sky-800 text-white rounded-lg shadow-lg mb-8">
-        <h1 class="text-5xl font-extrabold mb-4 animate-fade-in-down">Discover Your Next Great Read!</h1>
-        <p class="text-xl mb-8 animate-fade-in-up">Explore a vast collection of physical and digital books.</p>
-        <div class="space-x-4 animate-scale-in">
+    <div class="text-center px-4 py-12 sm:py-16 bg-gradient-to-r from-sky-600 to-sky-800 text-white rounded-lg shadow-lg mb-8">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4 animate-fade-in-down leading-tight">
+            Discover Your Next Great Read!
+        </h1>
+        <p class="text-lg sm:text-xl mb-6 sm:mb-8 animate-fade-in-up">
+            Explore a vast collection of physical and digital books.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 animate-scale-in">
             <?php if ($isBuyer || !isLoggedIn()): ?>
-                <a href="<?= BASE_URL ?>/buyer/" class="bg-white text-sky-800 px-8 py-4 rounded-full font-bold shadow-lg hover:bg-gray-100 transition duration-300">
+                <a href="<?= BASE_URL ?>/buyer/"
+                class="w-full sm:w-auto text-center bg-white text-sky-800 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg hover:bg-gray-100 transition duration-300">
                     Browse Books
                 </a>
             <?php endif; ?>
             <?php if (!isLoggedIn()): ?>
-                <a href="<?= BASE_URL ?>/auth/register.php" class="border-2 border-white text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-white hover:text-sky-800 transition duration-300">
+                <a href="<?= BASE_URL ?>/auth/register.php"
+                class="w-full sm:w-auto text-center border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg hover:bg-white hover:text-sky-800 transition duration-300">
                     Join Us
                 </a>
             <?php endif; ?>

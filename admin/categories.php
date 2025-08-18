@@ -235,7 +235,7 @@ include '../includes/header.php';
                 <?php echo $categoryToEdit ? 'Update Category' : 'Add Category'; ?>
             </button>
             <?php if ($categoryToEdit): ?>
-                <a href="<?= BASE_URL ?>/admin/categories.php" class="block text-center mt-2 text-gray-600 hover:text-sky-800">Cancel Edit</a>
+                <a href="<?= BASE_URL ?>/admin/categories.php" class="block text-center mt-2 w-full py-2 px-4 rounded-md transition duration-300 bg-gray-600 text-white hover:bg-gray-300 hover:text-gray-700">Cancel Edit</a>
             <?php endif; ?>
         </form>
     </div>

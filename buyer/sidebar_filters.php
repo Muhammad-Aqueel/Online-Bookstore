@@ -34,7 +34,7 @@
         <div class="mb-6">
             <h4 class="font-bold text-gray-900 mb-2">Categories</h4>
             <!-- All Categories toggle -->
-            <div id="categoryList" class="overflow-scroll max-h-[150px]">
+            <div id="categoryList" class="overflow-auto max-h-[150px]">
                 <?php renderTree($categoryTree); ?>
             </div>
         </div>

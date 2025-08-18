@@ -94,7 +94,7 @@
                 }
                 // Prevent direct access
                 define('BASE_PATH', __DIR__ . '/../'); // Define BASE_PATH relative to database.php itself
-                defined('BASE_PATH') or die('No direct script access allowed');
+                defined('BASE_PATH') or \$_SESSION['warning'] = 'No direct script access allowed';
 
                 // Database configuration
                 define('DB_HOST', '{$dbHost}');
@@ -108,7 +108,7 @@
                     \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     \$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
                 } catch (PDOException \$e) {
-                    die("Database connection failed: " . \$e->getMessage());
+                    \$_SESSION['error'] = "Database connection failed: " . \$e->getMessage();
                 }
 
                 // Base URL (dynamically set during installation)

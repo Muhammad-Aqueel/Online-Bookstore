@@ -340,7 +340,7 @@
 
             <div>
                 <label for="categories" class="block text-gray-700 font-bold mb-1">Categories (Select one or more)</label>
-                <div class="overflow-y-scroll max-h-[150px]"><?php renderTree($categoryTree, $currentCategories); ?></div>
+                <div class="overflow-auto max-h-[150px]"><?php renderTree($categoryTree, $currentCategories); ?></div>
             </div>
 
             <button type="submit" class="bg-sky-600 text-white px-6 py-2 rounded-md hover:bg-sky-700 transition duration-300">

@@ -162,6 +162,186 @@ CREATE TABLE IF NOT EXISTS password_resets (
     PRIMARY KEY (email)
 );
 
+--
+-- Table structure for table `coupons`
+--
+
+CREATE TABLE `coupons` (
+  `id` int(11) NOT NULL,
+  `code` varchar(64) NOT NULL,
+  `type` enum('percent','fixed') NOT NULL DEFAULT 'percent',
+  `amount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seller_id` int(11) DEFAULT NULL,
+  `min_order_amount` decimal(10,2) DEFAULT 0.00,
+  `usage_limit` int(11) DEFAULT NULL,
+  `times_used` int(11) DEFAULT 0,
+  `starts_at` datetime DEFAULT current_timestamp(),
+  `expires_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `coupon_usages`
+--
+
+CREATE TABLE `coupon_usages` (
+  `id` int(11) NOT NULL,
+  `coupon_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `used_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `threads`
+--
+
+CREATE TABLE `threads` (
+  `id` int(11) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `thread_messages`
+--
+
+CREATE TABLE `thread_messages` (
+  `id` int(11) NOT NULL,
+  `thread_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role` enum('buyer','seller','admin') NOT NULL,
+  `message` text NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `thread_participants`
+--
+
+CREATE TABLE `thread_participants` (
+  `id` int(11) NOT NULL,
+  `thread_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role` enum('buyer','seller','admin') NOT NULL,
+  `last_read_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `coupons`
+--
+ALTER TABLE `coupons`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
+
+--
+-- Indexes for table `coupon_usages`
+--
+ALTER TABLE `coupon_usages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `coupon_id` (`coupon_id`);
+
+--
+-- Indexes for table `threads`
+--
+ALTER TABLE `threads`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE threads
+  ADD COLUMN seller_id INT NOT NULL,
+  ADD CONSTRAINT `fk_threads_seller` FOREIGN KEY (seller_id) REFERENCES users(id);
+
+--
+-- Indexes for table `thread_messages`
+--
+ALTER TABLE `thread_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `thread_id` (`thread_id`);
+
+--
+-- Indexes for table `thread_participants`
+--
+ALTER TABLE `thread_participants`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `thread_id` (`thread_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `coupons`
+--
+ALTER TABLE `coupons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `coupon_usages`
+--
+ALTER TABLE `coupon_usages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `threads`
+--
+ALTER TABLE `threads`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `thread_messages`
+--
+ALTER TABLE `thread_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `thread_participants`
+--
+ALTER TABLE `thread_participants`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `coupon_usages`
+--
+ALTER TABLE `coupon_usages`
+  ADD CONSTRAINT `coupon_usages_ibfk_1` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`);
+
+--
+-- Constraints for table `thread_messages`
+--
+ALTER TABLE `thread_messages`
+  ADD CONSTRAINT `thread_messages_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `thread_participants`
+--
+ALTER TABLE `thread_participants`
+  ADD CONSTRAINT `thread_participants_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+ALTER TABLE orders
+ADD COLUMN coupon_id INT DEFAULT NULL,
+ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0,
+ADD CONSTRAINT fk_orders_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id);
+
 -- ==============================
 -- Indexes for performance
 -- ==============================

@@ -10,7 +10,9 @@ $pageTitle = "System Settings";
 // Handle form submission (add or update)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCsrfToken($_POST['csrf_token'])) {
-        die("CSRF token validation failed.");
+        $_SESSION['error'] = "CSRF token validation failed.";
+        header("Location: " . BASE_URL . "/admin/settings.php");
+        exit;
     }
 
     $name = sanitizeInput($_POST['name']);

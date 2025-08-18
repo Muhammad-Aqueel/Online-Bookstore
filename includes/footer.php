@@ -125,6 +125,77 @@
         <?php endif; ?>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                <?php $current_page = basename($_SERVER['PHP_SELF']); if($current_page === 'thread.php'): ?>
+                    // Live chat update
+                    const chatBox = document.getElementById("chatBox");
+                    const chatForm = document.getElementById("chatForm");
+                    const messageInput = document.getElementById("messageInput");
+
+                    let lastId = <?= count($messages) ? (int)end($messages)['id'] : 0 ?>;
+                    const threadId = <?= (int)$threadId ?>;
+
+                    // Always scroll to bottom on load
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    // Poll new messages every 1 seconds
+                    setInterval(fetchMessages, 1000);
+
+                    function fetchMessages() {
+                        fetch(`fetch_messages.php?thread_id=${threadId}&last_id=${lastId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (Array.isArray(data) && data.length > 0) {
+                                    data.forEach(msg => appendMessage(msg));
+                                    // Auto-scroll only if user is near bottom
+                                    if (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100) {
+                                        chatBox.scrollTop = chatBox.scrollHeight;
+                                    }
+                                    lastId = data[data.length - 1].id;
+                                }
+                            })
+                            .catch(err => console.error(err));
+                    }
+
+                    function appendMessage(msg) {
+                        let roleClass = "bg-gray-50 text-gray-800 border border-gray-300";
+                        if (msg.role === "admin") {
+                            roleClass = "bg-purple-100 text-purple-800 border border-purple-300";
+                        } else if (msg.role === "seller") {
+                            roleClass = "bg-blue-100 text-blue-800 border border-blue-300";
+                        } else if (msg.role === "buyer") {
+                            roleClass = "bg-green-100 text-green-800 border border-green-300";
+                        }
+                        if (msg.role === "<?= $userRole ?>") {
+                            roleClass += " ml-[50px]";
+                        } else {
+                            roleClass += " mr-[50px]";
+                        }
+
+                        const div = document.createElement("div");
+                        div.className = `p-3 rounded ${roleClass}`;
+                        div.innerHTML = `
+                            <div>${msg.message.replace(/\n/g, "<br>")}</div>
+                            <div class="text-xs text-gray-500">${msg.username} (${msg.role}) | ${msg.created_at}</div>
+                        `;
+                        chatBox.appendChild(div);
+                    }
+
+                    // Handle form submission via AJAX
+                    chatForm.addEventListener("submit", function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(chatForm);
+
+                        fetch("thread.php?id=" + threadId, {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(() => {
+                            messageInput.value = "";
+                            fetchMessages(); // Immediately fetch after sending
+                        })
+                        .catch(err => console.error(err));
+                    });
+                <?php endif; ?>
                 // show sugestions
                 const searchInput = document.getElementById('navbarSearchInput');
                 const suggestionsBox = document.getElementById('searchSuggestions');

@@ -48,7 +48,7 @@
         if (strpos($referer, 'seller_profiles.php') !== false) {
             header('Location: ' . BASE_URL . '/admin/seller_profiles.php');
         } else {
-            header('Location: ' . BASE_URL . '/admin/users.php');
+            header('Location: ' . BASE_URL . '/admin/sellers.php');
         }
         exit;
     }
@@ -162,7 +162,7 @@
                             <span class="px-2 py-1 text-xs rounded-full <?php echo $user['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
                                 <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
                             </span>
-                            <a href="<?= BASE_URL ?>/admin/users.php?toggle_status=<?php echo $user['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s active status?')">Toggle</a>
+                            <a href="<?= BASE_URL ?>/admin/sellers.php?toggle_status=<?php echo $user['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s status?')">Toggle</a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="<?= BASE_URL ?>/admin/edit_user.php?id=<?php echo $user['id']; ?>" class="text-sky-600 hover:text-sky-800 mr-2" target="_blank">Edit</a>

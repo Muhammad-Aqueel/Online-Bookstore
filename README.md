@@ -4,7 +4,7 @@ A complete **online bookstore** built with **plain PHP (PDO)** and **MySQL**, fe
 
 ---
 
-## Features (in detail)
+## Features
 
 ### Public & General
 - Landing page with **latest approved books**.
@@ -32,12 +32,27 @@ A complete **online bookstore** built with **plain PHP (PDO)** and **MySQL**, fe
 - **Order statuses**: `pending`, `processing`, `shipped`, `delivered`, `cancelled`.
 - Buyers can **view orders**, **order details**, **cancel orders** (when allowed).
 - **Stock management**: decrements inventory on **physical** purchases.
+- The **coupon system** allows discounts during checkout, supporting both percentage-based and fixed-amount coupons.
 
 ### Digital Downloads & Library
 - Sellers can upload a **digital file** and optional **preview**.
 - Buyers get a **Digital Library** of purchased eBooks.
 - Secure **download endpoint** validates purchase, order status (`payment_status = 'completed'`), and updates **download count** per item.
 
+### Messaging Feature
+- The messaging system enables secure communication between buyers, sellers, and admins.
+- Buyer can create new threads with a seller (about an order, book, etc.).
+- Seller can reply to buyer threads, or continue ongoing conversations.
+- Admin has oversight: can list all threads and intervene in conversations.
+```text
+[ Buyer ] ── starts thread ──► [ Seller ]
+     │                             │
+     │                             ▼
+     │                        Replies back
+     │                             │
+     ▼                             │
+[ Admin ] ◄── can join any thread ─┘
+```
 ### Seller Portal
 - **Add/Edit/Delete books**, set **price**, **stock**, formats, **cover image**, **preview**, and **categories**.
 - **Orders** listing for orders containing the seller’s items.
@@ -138,99 +153,103 @@ Key tables (see `install/install.sql` for full schema):
 
 ```text
 book_store/
-├── admin/
-│   ├── approve_book.php
-│   ├── books.php
-│   ├── categories.php
-│   ├── delete_user.php
-│   ├── earnings.php
-│   ├── edit_user.php
-│   ├── index.php
-│   ├── order_details.php
-│   ├── orders.php
-│   ├── reject_book.php
-│   ├── seller_profiles.php
-│   ├── sellers.php
-│   ├── settings.php
-│   └── users.php
+├── admin/                  # Admin dashboard & management
+│   ├── index.php           # Admin dashboard home
+│   ├── approve_book.php    # Approve seller book listings
+│   ├── reject_book.php     # Reject book submissions
+│   ├── books.php           # Manage all books
+│   ├── categories.php      # Manage categories
+│   ├── sellers.php         # Manage sellers
+│   ├── seller_profiles.php # Review seller profiles
+│   ├── users.php           # Manage users
+│   ├── edit_user.php       # Edit user details
+│   ├── delete_user.php     # Remove a user
+│   ├── orders.php          # View all orders
+│   ├── order_details.php   # Order detail view
+│   ├── earnings.php        # Admin earnings/commissions
+│   ├── settings.php        # Site settings (commission, etc.)
+│   ├── messages.php        # Messaging system - list threads (admin view)
+│   └── thread.php          # Messaging system - single thread view
 │
-├── assets/
+├── assets/                 # Static assets
 │   ├── css/
-│   │   └── styles.css
-│   ├── digital_books/
-│   ├── images/
-│   │   ├── books/
-│   │   ├── logos/
-│   │   │   └── logo_689c10673fcf9.png
-│   │   └── users/
-│   │       └── default.png
+│   │   └── styles.css      # Main stylesheet
 │   ├── js/
-│   │   └── main.js
-│   └── previews/
+│   │   └── main.js         # Global JavaScript
+│   ├── images/             # Image storage
+│   │   ├── books/          # Book cover images
+│   │   ├── logos/          # Seller/store logos
+│   │   └── users/          # User avatars
+│   │       └── default.png # Default profile image
+│   ├── previews/           # Book preview files
+│   └── digital_books/      # Digital book files (eBooks)
 │
-├── auth/
-│   ├── account.php
-│   ├── login.php
-│   ├── logout.php
-│   ├── register.php
-│   └── reset_password.php
+├── auth/                   # Authentication
+│   ├── login.php           # User login
+│   ├── register.php        # User registration
+│   ├── logout.php          # Logout handler
+│   ├── account.php         # User account page
+│   └── reset_password.php  # Password reset
 │
-├── buyer/
-│   ├── book.php
-│   ├── cancel_order.php
-│   ├── cart.php
-│   ├── checkout.php
-│   ├── checkout_process.php
-│   ├── download.php
-│   ├── index.php
-│   ├── library.php
-│   ├── order_confirmation.php
-│   ├── order_details.php
-│   ├── orders.php
-│   ├── search.php
-│   ├── search_results.php
-│   ├── search_suggest.php
-│   ├── sidebar_filters.php
-│   ├── suggest.php
-│   └── wishlist.php
+├── buyer/                  # Buyer area
+│   ├── index.php           # Buyer dashboard/home
+│   ├── cart.php            # Shopping cart
+│   ├── checkout.php        # Checkout form & coupon input
+│   ├── checkout_process.php# Handle checkout & order creation
+│   ├── order_confirmation.php # Order confirmation page
+│   ├── orders.php          # Buyer order history
+│   ├── order_details.php   # Buyer order details
+│   ├── cancel_order.php    # Cancel an order
+│   ├── library.php         # Digital library for eBooks
+│   ├── download.php        # eBook download handler
+│   ├── wishlist.php        # Wishlist management
+│   ├── search.php          # Search form
+│   ├── search_results.php  # Search results
+│   ├── search_suggest.php  # AJAX suggestions
+│   ├── sidebar_filters.php # Sidebar filter options
+│   ├── messages.php        # List threads (buyer)
+│   ├── new_thread.php      # Start a new message thread
+│   └── thread.php          # View + reply inside a thread
 │
-├── config/
-│   └── database.php
+├── seller/                 # Seller area
+│   ├── index.php           # Seller dashboard/home
+│   ├── add_book.php        # Add new book
+│   ├── edit_book.php       # Edit book details
+│   ├── books.php           # Manage seller's books
+│   ├── coupons.php         # Manage seller coupons
+│   ├── orders.php          # Seller order list
+│   ├── order_details.php   # Order details (seller side)
+│   ├── earnings.php        # Seller earnings overview
+│   ├── profile.php         # Seller profile management
+│   ├── messages.php        # Messaging system - list threads
+│   └── thread.php          # Messaging system - single thread view
 │
-├── includes/
-│   ├── auth.php
-│   ├── footer.php
-│   ├── header.php
-│   └── helpers.php
+├── config/                 
+│   └── database.php        # Database connection settings
 │
-├── install/
-│   ├── .htaccess
-│   ├── 403.html
-│   ├── index.php
-│   ├── install.sql
-│   ├── install.sql_
-│   └── server_check.php
+├── includes/               # Shared includes
+│   ├── header.php          # Common header/navbar
+│   ├── footer.php          # Common footer
+│   ├── auth.php            # Authentication check helpers
+│   └── helpers.php         # Utility/helper functions
 │
-├── seller/
-│   ├── add_book.php
-│   ├── books.php
-│   ├── earnings.php
-│   ├── edit_book.php
-│   ├── index.php
-│   ├── order_details.php
-│   ├── orders.php
-│   └── profile.php
-│ 
-├── .htaccess
-├── 403.php
-├── 404.php
-├── README.md
-├── about.php
-├── contact.php
-├── faq.php
-├── index.php
-├── returns.php
-└── shipping.php
+├── install/                # Installer
+│   ├── index.php           # Installation script
+│   ├── install.sql         # SQL schema
+│   ├── server_check.php    # Check server requirements
+│   ├── 403.html            # Installer forbidden page
+│   └── .htaccess           # Restrict access post-install
+├── .gitignore              # Git ignored files list
+├── .htaccess               # Apache rewrite & access rules
+├── 403.php                 # Custom 403 Forbidden page
+├── 404.php                 # Custom 404 Not Found page
+├── LICENSE                 # License information
+├── README.md               # Project documentation
+├── about.php               # About page
+├── contact.php             # Contact page
+├── faq.php                 # FAQ page
+├── index.php               # Homepage
+└── returns.php             # Returns policy page
 ```
 
 > Upload folders (`assets/images/books/`, `assets/digital_books/`, `assets/previews/`) may be **absent in a fresh clone** — create them and set proper permissions.
@@ -249,8 +268,6 @@ Most settings live in `config/database.php` (generated by the installer): DB cre
 - Add server‑side file type/size validation and virus scanning for uploads in production.
 - Consider rate limiting / captcha for auth and form endpoints in production.
 - Add pagination to more listing pages if catalogs grow large.
-- Discount coupons system
-- Messaging between Users (Admin, Seller and Buyer)
 
 ---
 

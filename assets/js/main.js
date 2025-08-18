@@ -59,18 +59,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Simple DataTable replacement
     // ------------------------------
     // Vanilla JS sortable tables (basic)
-    document.querySelectorAll('.data-table th').forEach((th, index) => {
+    document.querySelectorAll('.data-table th').forEach(th => {
         th.addEventListener('click', () => {
           const table = th.closest('table');
           const tbody = table.querySelector('tbody');
           const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+          // 🔹 Column index relative to this table
+          const index = Array.from(th.parentNode.children).indexOf(th);
+      
           const isAscending = th.classList.contains('asc');
       
           rows.sort((a, b) => {
-            const aText = a.children[index].textContent.trim();
-            const bText = b.children[index].textContent.trim();
+            const aText = a.children[index]?.textContent.trim() || "";
+            const bText = b.children[index]?.textContent.trim() || "";
       
-            // If numeric, compare as numbers
             if (!isNaN(aText) && !isNaN(bText)) {
               return isAscending ? aText - bText : bText - aText;
             }
@@ -78,14 +81,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
           });
       
-          // Re-append sorted rows
           rows.forEach(row => tbody.appendChild(row));
       
-          // Toggle sort classes
+          // Clear sort classes from all headers in THIS table
+          table.querySelectorAll('th').forEach(header => {
+            header.classList.remove('asc', 'desc');
+          });
+      
+          // Apply new sort state only to clicked header
           th.classList.toggle('asc', !isAscending);
           th.classList.toggle('desc', isAscending);
         });
-    });
+      });
 
     // sidebar menu
     const sidebar = document.getElementById("sidebar");

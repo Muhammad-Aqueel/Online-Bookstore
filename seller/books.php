@@ -80,8 +80,8 @@ include '../includes/header.php';
     <h1 class="text-3xl font-bold text-sky-800 mb-6">My Books</h1>
 
     <div class="mb-6">
-        <a href="<?= BASE_URL ?>/seller/add_book.php" class="bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition duration-300">
-            <i class="fas fa-plus mr-2"></i> Add New Book
+        <a href="<?= BASE_URL ?>/seller/add_book.php" class="px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-gray-300 hover:text-gray-700 mb-2">
+            <i class="fas fa-book-medical mr-2"></i>Add New Book
         </a>
     </div>
 

@@ -112,9 +112,7 @@ include '../includes/header.php';
                     <?php foreach ($recentOrders as $order): ?>
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="<?= BASE_URL ?>/admin/order_details.php?id=<?php echo $order['id']; ?>" class="text-sky-600 hover:text-sky-800">
-                                #<?php echo $order['id']; ?>
-                            </a>
+                            <a href="<?= BASE_URL ?>/admin/order_details.php?id=<?php echo $order['id']; ?>" class="text-sky-600 hover:text-sky-800"><?php echo $order['id']; ?></a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($order['buyer_name']); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
