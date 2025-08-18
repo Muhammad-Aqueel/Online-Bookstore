@@ -59,7 +59,7 @@ include '../includes/header.php';
         </div>
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-gray-500">Total Revenue</h3>
-            <p class="text-2xl font-bold text-sky-600">$<?php echo number_format($revenue, 2); ?></p>
+            <p class="text-2xl font-bold text-sky-600">$<?php echo !empty($revenue) ? number_format($revenue, 2): 0 ; ?></p>
         </div>
     </div>
     

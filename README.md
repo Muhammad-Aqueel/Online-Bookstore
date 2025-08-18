@@ -45,13 +45,24 @@ A complete **online bookstore** built with **plain PHP (PDO)** and **MySQL**, fe
 - Seller can reply to buyer threads, or continue ongoing conversations.
 - Admin has oversight: can list all threads and intervene in conversations.
 ```text
-[ Buyer ] ── starts thread ──► [ Seller ]
-     │                             │
-     │                             ▼
-     │                        Replies back
-     │                             │
-     ▼                             │
-[ Admin ] ◄── can join any thread ─┘
+                        ┌────────────┐
+                        │   Admin    │
+                        │────────────│
+                        │ - View All │
+                        │   Threads  │
+                        │ - Intervene│
+                        └────┬───────┘
+                             │ Admin can join/monitor
+      ┌──────────────────────┼────────────────┐
+      ▼                      ▼                ▼
+┌────────────┐     Thread Created      ┌────────────┐
+│   Buyer    │ ──────────────────────► │   Seller   │
+│────────────│   (order, book, etc.)   │────────────│
+│ Start new  │                         │ - Reply    │
+│   thread   │           Replies       │ - Continue │
+└────────────┘ ◄────────────────────── └────────────┘
+        ▲       Ongoing conversation             ▲
+        └────────────────────────────────────────┘
 ```
 ### Seller Portal
 - **Add/Edit/Delete books**, set **price**, **stock**, formats, **cover image**, **preview**, and **categories**.
