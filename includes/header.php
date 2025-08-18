@@ -1,7 +1,4 @@
 <?php
-    // We no longer call session_start() here.
-    // It should be called once in the main entry file (e.g., index.php).
-
     require_once __DIR__ . '/../' . 'config/database.php';
     require_once BASE_PATH . '/includes/auth.php'; // Use the BASE_PATH constant
 

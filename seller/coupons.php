@@ -1,4 +1,5 @@
 <?php
+
 require_once "../config/database.php";
 require_once "../includes/auth.php";
 require_once '../includes/helpers.php';
@@ -264,5 +265,3 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     });
 </script>
 <?php include "../includes/footer.php"; ?>
-
-

@@ -1,5 +1,5 @@
 <?php
-// Ensure database config and authentication functions are available
+
 require_once '../config/database.php';
 require_once '../includes/auth.php'; // This provides isLoggedIn(), currentUser(), hasRole(), etc.
 require_once '../includes/helpers.php'; // This provides sanitizeInput(), generateCsrfToken(), etc.

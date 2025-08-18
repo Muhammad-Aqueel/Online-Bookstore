@@ -1,5 +1,5 @@
 <?php
-// Ensure necessary files are included and BASE_PATH/BASE_URL are defined
+
 require_once '../config/database.php';
 require_once '../includes/auth.php'; // Provides requireAuth
 require_once '../includes/helpers.php'; // Provides verifyCsrfToken

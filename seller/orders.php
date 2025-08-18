@@ -1,4 +1,5 @@
 <?php
+
 require_once '../config/database.php';
 require_once '../includes/auth.php'; // Provides requireAuth, currentUser, isLoggedIn, hasRole
 require_once '../includes/helpers.php'; // Provides sanitizeInput, generateCsrfToken, verifyCsrfToken

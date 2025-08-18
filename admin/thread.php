@@ -1,4 +1,5 @@
 <?php
+
 require_once "../config/database.php";
 require_once "../includes/auth.php";
 require_once '../includes/helpers.php';
@@ -52,7 +53,11 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include "../includes/header.php";
 ?>
 <div class="mx-4 my-8">
-    <h1 class="text-2xl font-bold text-sky-800 mb-6">Subject: <?= htmlspecialchars($thread['subject']) ?></h1>
+    <div class="mb-2 flex justify-between items-center flex-wrap">
+        <h1 class="text-2xl font-bold text-sky-800 mb-2">Subject: <?= htmlspecialchars($thread['subject']) ?></h1>
+        <a href="messages.php" class="px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-gray-300 hover:text-gray-700 mb-2"><i class="fa-solid fa-circle-arrow-left mr-2"></i>Go Back</a>
+    </div>
+
     <div id="chatBox" class="bg-white shadow rounded p-4 space-y-4 overflow-y-auto max-h-[330px]">
         <?php foreach ($messages as $msg): ?>
             <?php

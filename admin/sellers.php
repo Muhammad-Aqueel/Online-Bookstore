@@ -1,4 +1,5 @@
 <?php
+    
     require_once '../config/database.php';
     require_once '../includes/auth.php'; // Ensure auth functions are available
     require_once '../includes/helpers.php';
@@ -113,7 +114,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <?php echo date('M d, Y', strtotime($seller['created_at'])); ?>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center font-medium">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                     <a href="<?= BASE_URL ?>/admin/sellers.php?approve=<?php echo $seller['id']; ?>" 
                                     class="text-green-600 hover:text-green-800 mr-2">Approve</a>
                                     <a href="<?= BASE_URL ?>/admin/sellers.php?reject=<?php echo $seller['id']; ?>" 
@@ -164,7 +165,7 @@
                             </span>
                             <a href="<?= BASE_URL ?>/admin/sellers.php?toggle_status=<?php echo $user['id']; ?>" class="text-xs bg-sky-600 text-white px-2 py-1 rounded hover:bg-sky-700" onclick="return confirm('Are you sure you want to toggle this user\'s status?')">Toggle</a>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                             <a href="<?= BASE_URL ?>/admin/edit_user.php?id=<?php echo $user['id']; ?>" class="text-sky-600 hover:text-sky-800 mr-2" target="_blank">Edit</a>
                             <a href="<?= BASE_URL ?>/admin/delete_user.php?id=<?php echo $user['id']; ?>&csrf_token=<?php echo generateCsrfToken(); ?>"
                             onclick="return confirm('Are you sure you want to permanently delete this user and all their associated data? This cannot be undone.')"

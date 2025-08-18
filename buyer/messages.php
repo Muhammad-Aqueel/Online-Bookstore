@@ -1,4 +1,5 @@
 <?php
+
 require_once "../config/database.php";
 require_once "../includes/auth.php";
 requireAuth("buyer");
@@ -17,20 +18,26 @@ $threads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include "../includes/header.php";
 ?>
-<div class="mx-4 my-8">
+<div class="px-4 mx-4 my-8">
     <h1 class="text-3xl font-bold text-sky-800 mb-6">My Messages</h1>
     <a href="new_thread.php" class="px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-gray-300 hover:text-gray-700 mb-2"><i class="fas fa-comment-dots mr-2"></i>Start New Conversation</a>
-    <div class="overflow-y-auto max-h-[2000px] mt-4">
-        <?php foreach ($threads as $t): ?>
-            <ul class="divide-y my-3 bg-white shadow rounded">
-                <li class="p-4 hover:bg-gray-50">
-                    <a href="thread.php?id=<?= $t['id'] ?>" class="block">
-                        <div class="font-semibold"><?= htmlspecialchars($t['subject']) ?></div>
-                        <div class="text-sm text-gray-500">Last updated: <?= $t['updated_at'] ?></div>
-                    </a>
-                </li>
-            </ul>
-        <?php endforeach; ?>
-    </div>
+    <?php if($threads): ?>
+        <div class="overflow-y-auto max-h-[2000px] mt-4">
+            <?php foreach ($threads as $t): ?>
+                <ul class="divide-y my-3 bg-white shadow rounded">
+                    <li class="p-4 hover:bg-gray-50">
+                        <a href="thread.php?id=<?= $t['id'] ?>" class="block">
+                            <div class="font-semibold"><?= htmlspecialchars($t['subject']) ?></div>
+                            <div class="text-sm text-gray-500">Last updated: <?= $t['updated_at'] ?></div>
+                        </a>
+                    </li>
+                </ul>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+            <div class="bg-white rounded-lg shadow p-8 text-center mt-5">
+                <p class="text-gray-600">No threads yet — create the first one!</p>
+            </div>
+    <?php endif; ?>
 </div>
 <?php include "../includes/footer.php"; ?>
