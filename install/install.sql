@@ -1,4 +1,7 @@
+-- ==============================
 -- Database: bookstore
+-- ==============================
+
 -- CREATE DATABASE IF NOT EXISTS bookstore
 --   DEFAULT CHARACTER SET utf8mb4
 --   DEFAULT COLLATE utf8mb4_unicode_ci;
@@ -26,7 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- ==============================
--- Seller profiles
+-- Seller Profiles
 -- ==============================
 CREATE TABLE IF NOT EXISTS seller_profiles (
     user_id INT PRIMARY KEY,
@@ -45,7 +48,7 @@ CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     slug VARCHAR(50) UNIQUE NOT NULL,
-    parent_id INT NULL,
+    parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 
@@ -60,7 +63,7 @@ CREATE TABLE IF NOT EXISTS books (
     isbn VARCHAR(20),
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
-    stock INT NOT NULL DEFAULT 0,
+    stock INT DEFAULT 0 NOT NULL,
     cover_image VARCHAR(255),
     preview_pages VARCHAR(255),
     is_physical BOOLEAN DEFAULT TRUE,
@@ -73,7 +76,7 @@ CREATE TABLE IF NOT EXISTS books (
 );
 
 -- ==============================
--- Book categories (many-to-many)
+-- Book Categories (many-to-many)
 -- ==============================
 CREATE TABLE IF NOT EXISTS book_categories (
     book_id INT NOT NULL,
@@ -84,22 +87,54 @@ CREATE TABLE IF NOT EXISTS book_categories (
 );
 
 -- ==============================
+-- Coupons
+-- ==============================
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(64) UNIQUE NOT NULL,
+    type ENUM('percent','fixed') DEFAULT 'percent' NOT NULL,
+    amount DECIMAL(12,2) DEFAULT 0.00 NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    seller_id INT NOT NULL,
+    min_order_amount DECIMAL(10,2) DEFAULT 0.00,
+    usage_limit INT,
+    times_used INT DEFAULT 0,
+    starts_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seller_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS coupon_usages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    coupon_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id),
+    FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+-- ==============================
 -- Orders
 -- ==============================
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     buyer_id INT NOT NULL,
+    coupon_id INT DEFAULT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10,2) NOT NULL,
-    status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+    discount_amount DECIMAL(10,2) DEFAULT 0,
+    status ENUM('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending',
     payment_method VARCHAR(50),
-    payment_status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
+    payment_status ENUM('pending','completed','failed','refunded') DEFAULT 'pending',
     shipping_address TEXT NOT NULL,
-    FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id)
 );
 
 -- ==============================
--- Order items
+-- Order Items
 -- ==============================
 CREATE TABLE IF NOT EXISTS order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -148,243 +183,81 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Insert commission setting
-INSERT INTO settings (name, value) VALUES ('commission', '0.15')
+INSERT INTO settings (name, value)
+VALUES ('commission', '0.15')
 ON DUPLICATE KEY UPDATE value = VALUES(value);
 
 -- ==============================
--- Password resets
+-- Password Resets
 -- ==============================
 CREATE TABLE IF NOT EXISTS password_resets (
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) PRIMARY KEY,
     token VARCHAR(64) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    PRIMARY KEY (email)
+    expires_at TIMESTAMP NOT NULL
 );
 
---
--- Table structure for table `coupons`
---
+-- ==============================
+-- Messaging (Threads)
+-- ==============================
+CREATE TABLE IF NOT EXISTS threads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subject VARCHAR(255) NOT NULL,
+    created_by INT NOT NULL,   -- who started (usually buyer)
+    seller_id INT NOT NULL,    -- conversation is tied to a seller
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (seller_id) REFERENCES users(id)
+);
 
-CREATE TABLE `coupons` (
-  `id` int(11) NOT NULL,
-  `code` varchar(64) NOT NULL,
-  `type` enum('percent','fixed') NOT NULL DEFAULT 'percent',
-  `amount` decimal(12,2) NOT NULL DEFAULT 0.00,
-  `active` tinyint(1) NOT NULL DEFAULT 1,
-  `seller_id` int(11) DEFAULT NULL,
-  `min_order_amount` decimal(10,2) DEFAULT 0.00,
-  `usage_limit` int(11) DEFAULT NULL,
-  `times_used` int(11) DEFAULT 0,
-  `starts_at` datetime DEFAULT current_timestamp(),
-  `expires_at` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS thread_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    thread_id INT NOT NULL,
+    user_id INT NOT NULL,
+    role ENUM('buyer','seller','admin') NOT NULL,
+    message TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (thread_id) REFERENCES threads(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `coupon_usages`
---
-
-CREATE TABLE `coupon_usages` (
-  `id` int(11) NOT NULL,
-  `coupon_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `used_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `threads`
---
-
-CREATE TABLE `threads` (
-  `id` int(11) NOT NULL,
-  `subject` varchar(255) NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `thread_messages`
---
-
-CREATE TABLE `thread_messages` (
-  `id` int(11) NOT NULL,
-  `thread_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `role` enum('buyer','seller','admin') NOT NULL,
-  `message` text NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `thread_participants`
---
-
-CREATE TABLE `thread_participants` (
-  `id` int(11) NOT NULL,
-  `thread_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `role` enum('buyer','seller','admin') NOT NULL,
-  `last_read_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `coupons`
---
-ALTER TABLE `coupons`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `code` (`code`);
-
---
--- Indexes for table `coupon_usages`
---
-ALTER TABLE `coupon_usages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `coupon_id` (`coupon_id`);
-
---
--- Indexes for table `threads`
---
-ALTER TABLE `threads`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE threads
-  ADD COLUMN seller_id INT NOT NULL,
-  ADD CONSTRAINT `fk_threads_seller` FOREIGN KEY (seller_id) REFERENCES users(id);
-
---
--- Indexes for table `thread_messages`
---
-ALTER TABLE `thread_messages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `thread_id` (`thread_id`);
-
---
--- Indexes for table `thread_participants`
---
-ALTER TABLE `thread_participants`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `thread_id` (`thread_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `coupons`
---
-ALTER TABLE `coupons`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `coupon_usages`
---
-ALTER TABLE `coupon_usages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `threads`
---
-ALTER TABLE `threads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `thread_messages`
---
-ALTER TABLE `thread_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `thread_participants`
---
-ALTER TABLE `thread_participants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `coupon_usages`
---
-ALTER TABLE `coupon_usages`
-  ADD CONSTRAINT `coupon_usages_ibfk_1` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`);
-
---
--- Constraints for table `thread_messages`
---
-ALTER TABLE `thread_messages`
-  ADD CONSTRAINT `thread_messages_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `thread_participants`
---
-ALTER TABLE `thread_participants`
-  ADD CONSTRAINT `thread_participants_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`id`) ON DELETE CASCADE;
-COMMIT;
-
-ALTER TABLE orders
-ADD COLUMN coupon_id INT DEFAULT NULL,
-ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0,
-ADD CONSTRAINT fk_orders_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id);
+CREATE TABLE IF NOT EXISTS thread_participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    thread_id INT NOT NULL,
+    user_id INT NOT NULL,
+    role ENUM('buyer','seller','admin') NOT NULL,
+    last_read_at DATETIME,
+    FOREIGN KEY (thread_id) REFERENCES threads(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
 -- ==============================
--- Indexes for performance
+-- Indexes
 -- ==============================
+CREATE INDEX idx_books_title       ON books(title);
+CREATE INDEX idx_books_author      ON books(author);
+CREATE INDEX idx_books_isbn        ON books(isbn);
+CREATE INDEX idx_books_description ON books(description(100));
+CREATE INDEX idx_books_price       ON books(price);
+CREATE INDEX idx_books_seller      ON books(seller_id);
+CREATE INDEX idx_books_created     ON books(created_at);
+CREATE INDEX idx_books_approved    ON books(approved);
 
--- Books search fields
-CREATE INDEX idx_books_title        ON books(title);
-CREATE INDEX idx_books_author       ON books(author);
-CREATE INDEX idx_books_isbn         ON books(isbn);
-CREATE INDEX idx_books_description  ON books(description(100));
+CREATE INDEX idx_reviews_book      ON reviews(book_id);
+CREATE INDEX idx_reviews_rating    ON reviews(rating);
 
--- Books filters
-CREATE INDEX idx_books_price        ON books(price);
-CREATE INDEX idx_books_format       ON books(is_physical, is_digital);
-CREATE INDEX idx_books_seller       ON books(seller_id);
-CREATE INDEX idx_books_created      ON books(created_at);
-CREATE INDEX idx_books_approved     ON books(approved);
+CREATE INDEX idx_orders_buyer      ON orders(buyer_id);
+CREATE INDEX idx_orders_status     ON orders(status);
+CREATE INDEX idx_orders_date       ON orders(order_date);
 
--- Many-to-many
-CREATE INDEX idx_book_categories_book  ON book_categories(book_id);
-CREATE INDEX idx_book_categories_cat   ON book_categories(category_id);
+CREATE INDEX idx_order_items_order ON order_items(order_id);
+CREATE INDEX idx_order_items_book  ON order_items(book_id);
 
--- Reviews
-CREATE INDEX idx_reviews_book       ON reviews(book_id);
-CREATE INDEX idx_reviews_rating     ON reviews(rating);
+CREATE INDEX idx_wishlists_user    ON wishlists(user_id);
+CREATE INDEX idx_wishlists_book    ON wishlists(book_id);
 
--- Sellers
 CREATE INDEX idx_seller_profiles_store ON seller_profiles(store_name);
 
--- Orders
-CREATE INDEX idx_orders_buyer       ON orders(buyer_id);
-CREATE INDEX idx_orders_status      ON orders(status);
-CREATE INDEX idx_orders_date        ON orders(order_date);
-
--- Order items
-CREATE INDEX idx_order_items_order  ON order_items(order_id);
-CREATE INDEX idx_order_items_book   ON order_items(book_id);
-
--- Wishlists
-CREATE INDEX idx_wishlists_user     ON wishlists(user_id);
-CREATE INDEX idx_wishlists_book     ON wishlists(book_id);
-
--- ==============================
--- Optional Full-Text Search (for large datasets)
--- ==============================
-ALTER TABLE books 
-    ADD FULLTEXT idx_books_text (title, author, description);
+-- Optional Full-text search
+ALTER TABLE books
+  ADD FULLTEXT idx_books_text (title, author, description);

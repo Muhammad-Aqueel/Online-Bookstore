@@ -73,7 +73,7 @@ if (isset($_POST['update_payment_status'])) {
     // CSRF Token validation
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $_SESSION['error'] = 'Invalid CSRF token. Please try again.';
-        header('Location: ' . BASE_URL . ' /admin/order_details.php?id=' . $orderId);
+        header('Location: ' . BASE_URL . '/admin/order_details.php?id=' . $orderId);
         exit;
     }
 
@@ -94,7 +94,7 @@ if (isset($_POST['update_payment_status'])) {
             $_SESSION['error'] = "Failed to update order payment status: " . $e->getMessage();
         }
     }
-    header('Location: ' . BASE_URL . ' /admin/order_details.php?id=' . $orderId);
+    header('Location: ' . BASE_URL . '/admin/order_details.php?id=' . $orderId);
     exit;
 }
 
@@ -110,7 +110,9 @@ include '../includes/header.php';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             <div>
                 <p><strong>Order Date:</strong> <?php echo date('M d, Y H:i', strtotime($order['order_date'])); ?></p>
-                <p><strong>Total Amount:</strong> $<?php echo number_format($order['total_amount'], 2); ?></p>
+                <p><strong>Total Amount:</strong> $<?php echo number_format($order['total_amount'] + $order['discount_amount'], 2); ?></p>
+                <p><strong>Discount:</strong> $<?php echo number_format($order['discount_amount'], 2); ?></p>
+                <p><strong>Final Amount:</strong> $<?php echo number_format($order['total_amount'], 2); ?></p>
                 <p><strong>Payment Method:</strong> <?php echo htmlspecialchars(ucfirst($order['payment_method'])); ?></p>
                 <p><strong>Payment Status:</strong> 
                     <span class="px-2 py-1 text-xs rounded-full 

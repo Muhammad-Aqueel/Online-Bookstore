@@ -175,22 +175,30 @@
     <main class="flex-grow">
         <!-- Success/Error Messages -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 container mx-auto mt-4">
-                <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+            <div class="mx-4">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded container mx-auto my-4">
+                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+                </div>
             </div>
         <?php endif; ?>
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 container mx-auto mt-4">
-                <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+            <div class="mx-4">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded container mx-auto my-4">
+                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                </div>
             </div>
         <?php endif; ?>
         <?php if (isset($_SESSION['info'])): ?>
-            <div class="bg-cyan-100 border border-cyan-400 text-cyan-600 px-4 py-3 rounded mb-4 container mx-auto mt-4">
-                <?php echo $_SESSION['info']; unset($_SESSION['info']); ?>
+            <div class="mx-4">
+                <div class="bg-cyan-100 border border-cyan-400 text-cyan-600 px-4 py-3 rounded container mx-auto my-4">
+                    <?php echo $_SESSION['info']; unset($_SESSION['info']); ?>
+                </div>
             </div>
         <?php endif; ?>
         <?php if (isset($_SESSION['warning'])): ?>
-            <div class="bg-yellow-100 border border-yellow-700 text-yellow-800 px-4 py-3 rounded mb-4 container mx-auto mt-4">
-                <?php echo $_SESSION['warning']; unset($_SESSION['warning']); ?>
+            <div class="mx-4">
+                <div class="bg-yellow-100 border border-yellow-700 text-yellow-800 px-4 py-3 rounded container mx-auto my-4">
+                    <?php echo $_SESSION['warning']; unset($_SESSION['warning']); ?>
+                </div>
             </div>
         <?php endif; ?>

@@ -79,22 +79,28 @@
             $_SESSION['cart'] = [];
             $_SESSION['cart_total'] = 0;
         }
-
+        $incart_qty = isset($_SESSION['cart'][$bookId]['quantity']) ? $_SESSION['cart'][$bookId]['quantity'] : 0;
         // Check stock for physical books
         if (!$isDigitalPurchase && $book['is_physical']) {
-            if ($book['stock'] < $quantity || $book['stock'] < $_SESSION['cart'][$bookId]['quantity'] + $quantity) {
-                if(isset($_SESSION['cart'][$bookId]['quantity'])){
-                    $_SESSION['error'] = "Only " . (int)$book['stock'] . " " . ((int)$book['stock'] === 1 ? "copy" : "copies") . " of " . htmlspecialchars($book['title']) . ((int)$book['stock'] === 1 ? " is" : " are") . " available, and you already have " . (int)$_SESSION['cart'][$bookId]['quantity'] . " in your cart.";
+            if ($book['stock'] < $quantity || $book['stock'] < $incart_qty + $quantity) {
+                if($book['stock'] < 1){
+                    $_SESSION['error'] = htmlspecialchars($book['title']) . " is out of stock.";
                     header('Location: ' . BASE_URL . '/buyer/book.php?id=' . $bookId);
                     exit;
                 } else {
-                    $_SESSION['error'] = "Only " . (int)$book['stock'] . " " . ((int)$book['stock'] === 1 ? "copy" : "copies") . " of " . htmlspecialchars($book['title']) . ((int)$book['stock'] === 1 ? " is" : " are") . " available.";
-                    header('Location: ' . BASE_URL . '/buyer/book.php?id=' . $bookId);
-                    exit;
+                    if(isset($_SESSION['cart'][$bookId]['quantity'])){
+                        $_SESSION['error'] = "Only " . (int)$book['stock'] . " " . ((int)$book['stock'] === 1 ? "copy" : "copies") . " of " . htmlspecialchars($book['title']) . ((int)$book['stock'] === 1 ? " is" : " are") . " available, and you already have " . (int)$_SESSION['cart'][$bookId]['quantity'] . " in your cart.";
+                        header('Location: ' . BASE_URL . '/buyer/book.php?id=' . $bookId);
+                        exit;
+                    } else {
+                        $_SESSION['error'] = "Only " . (int)$book['stock'] . " " . ((int)$book['stock'] === 1 ? "copy" : "copies") . " of " . htmlspecialchars($book['title']) . ((int)$book['stock'] === 1 ? " is" : " are") . " available.";
+                        header('Location: ' . BASE_URL . '/buyer/book.php?id=' . $bookId);
+                        exit;
+                    }
                 }
             }
         }
-        
+
         // Add or update item in cart
         if (isset($_SESSION['cart'][$bookId])) {
             // If adding a digital book to a cart already containing its physical version, or vice-versa,
@@ -238,7 +244,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center">
                                 <label class="mr-2">Quantity:</label>
-                                <input type="number" name="quantity" value="1" min="1" 
+                                <input type="number" name="quantity" value="<?php echo ($book['stock']) === 0 ? 0 : 1; ?>" min="1" 
                                        max="<?php echo ($book['is_physical']) ? $book['stock'] : '99'; ?>" 
                                        class="w-16 px-2 py-1 border rounded">
                             </div>

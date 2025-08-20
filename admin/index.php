@@ -82,7 +82,7 @@ include '../includes/header.php';
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($book['author']); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($book['seller_name']); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">$<?php echo number_format($book['price'], 2); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                             <a href="<?= BASE_URL ?>/admin/approve_book.php?id=<?php echo $book['id']; ?>" class="text-green-600 hover:text-green-800 mr-2">Approve</a>
                             <a href="<?= BASE_URL ?>/admin/reject_book.php?id=<?php echo $book['id']; ?>" class="text-red-600 hover:text-red-800">Reject</a>
                         </td>

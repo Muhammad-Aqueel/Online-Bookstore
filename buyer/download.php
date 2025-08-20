@@ -19,7 +19,7 @@ $stmt = $pdo->prepare("
     FROM order_items oi
     JOIN books b ON oi.book_id = b.id
     JOIN orders o ON oi.order_id = o.id
-    WHERE oi.id = ? AND o.buyer_id = ? AND oi.is_digital = 1 AND o.payment_status = 'completed' AND o.status = 'delivered'");
+    WHERE oi.id = ? AND o.buyer_id = ? AND b.is_digital = 1 AND o.payment_status = 'completed' AND (o.status = 'shipped' OR o.status = 'delivered')");
 $stmt->execute([$orderItemId, $userId]);
 $book = $stmt->fetch();
 

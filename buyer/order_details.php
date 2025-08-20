@@ -52,7 +52,9 @@ include '../includes/header.php';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             <div>
                 <p><strong>Order Date:</strong> <?php echo date('M d, Y H:i', strtotime($order['order_date'])); ?></p>
-                <p><strong>Total Amount:</strong> $<?php echo number_format($order['total_amount'], 2); ?></p>
+                <p><strong>Total Amount:</strong> $<?php echo number_format($order['total_amount'] + $order['discount_amount'], 2); ?></p>
+                <p><strong>Discount:</strong> $<?php echo number_format($order['discount_amount'], 2); ?></p>
+                <p><strong>Final Amount:</strong> $<?php echo number_format($order['total_amount'], 2); ?></p>
                 <p><strong>Payment Method:</strong> <?php echo htmlspecialchars(ucfirst($order['payment_method'])); ?></p>
                 <p><strong>Payment Status:</strong> 
                     <span class="px-2 py-1 text-xs rounded-full 
@@ -157,7 +159,7 @@ include '../includes/header.php';
                                             <i class="fas fa-download mr-1"></i> Download
                                         </a>
                                     <?php else: ?>
-                                        <span class="text-gray-400">N/A</span>
+                                        <span class="flex items-center text-gray-400">N/A</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>

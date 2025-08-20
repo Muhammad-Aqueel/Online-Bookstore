@@ -10,15 +10,12 @@ $pageTitle = "My Digital Library";
 
 // Get purchased digital books
 $stmt = $pdo->prepare("
-    SELECT b.id, b.title, b.author, b.cover_image, oi.digital_downloads, oi.id as order_item_id,
-           MAX(o.order_date) as purchase_date
-    FROM order_items oi
-    JOIN books b ON oi.book_id = b.id
-    JOIN orders o ON oi.order_id = o.id
-    WHERE o.buyer_id = ? AND oi.is_digital = 1 AND o.payment_status = 'completed' AND o.status = 'delivered'
-    GROUP BY b.id
-    ORDER BY purchase_date DESC
-");
+    SELECT b.id, b.title, b.author, b.cover_image, oi.digital_downloads, oi.id as order_item_id, o.order_date as purchase_date
+        FROM order_items oi
+        JOIN books b ON oi.book_id = b.id
+        JOIN orders o ON oi.order_id = o.id
+            WHERE o.buyer_id = ? AND b.is_digital = 1 AND o.payment_status = 'completed' AND o.status = 'delivered'
+            ORDER BY purchase_date DESC");
 $stmt->execute([$user['id']]);
 $books = $stmt->fetchAll();
 

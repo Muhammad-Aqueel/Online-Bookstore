@@ -41,12 +41,13 @@
 
         $appliedCouponCode = $code; // Keep field value
 
-        if ($coupon) {
+        if ($coupon && ($coupon['times_used'] !== $coupon['usage_limit'] || $coupon['times_used'] < $coupon['usage_limit'])) {
             if ($_SESSION['cart_total'] >= $coupon['min_order_amount']) {
                 $discountAmount = ($coupon['type'] === 'percent')
                     ? ($_SESSION['cart_total'] * ($coupon['amount'] / 100))
                     : $coupon['amount'];
                 $_SESSION['applied_coupon'] = $coupon['id'];
+                $_SESSION['success'] = "Coupon applied successfully.";
             } else {
                 $_SESSION['error'] = "Minimum order amount not met for this coupon.";
                 unset($_SESSION['applied_coupon']);
@@ -99,6 +100,15 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-lg font-semibold mb-4">Shipping Information</h2>
+                <!-- Coupon form -->
+                <form method="post" class="flex mt-6">
+                    <input type="text" name="coupon_code" placeholder="Enter coupon code (optional)"
+                           value="<?= htmlspecialchars($appliedCouponCode) ?>"
+                           class="flex-1 border px-3 py-2 rounded-l">
+                    <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-r hover:bg-sky-700">
+                        Apply
+                    </button>
+                </form>
                 <form action="<?= BASE_URL ?>/buyer/checkout_process.php" method="post" class="space-y-4">
                     <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                     <input type="hidden" name="payment_method" value="Credit Card">
@@ -137,16 +147,6 @@
 
                     <button type="submit" class="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700">
                         Place Order
-                    </button>
-                </form>
-
-                <!-- Coupon form -->
-                <form method="post" class="flex mt-6">
-                    <input type="text" name="coupon_code" placeholder="Enter coupon code"
-                           value="<?= htmlspecialchars($appliedCouponCode) ?>"
-                           class="flex-1 border px-3 py-2 rounded-l">
-                    <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-r hover:bg-sky-700">
-                        Apply
                     </button>
                 </form>
             </div>

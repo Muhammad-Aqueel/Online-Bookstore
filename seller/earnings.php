@@ -30,32 +30,44 @@ $sellerRate = 1 - PLATFORM_COMMISSION_RATE;
 // Get earnings data for the selected period
 $stmt = $pdo->prepare("
     SELECT 
-        DATE_FORMAT(o.order_date, '%Y-%m-%d') as day,
-        COUNT(DISTINCT o.id) as order_count,
-        SUM(oi.quantity) as book_count,
-        SUM(oi.price * oi.quantity) as gross_amount,
-        SUM(oi.price * oi.quantity * ?) as net_amount
-    FROM orders o
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN books b ON oi.book_id = b.id
-    WHERE b.seller_id = ? 
-      AND o.order_date BETWEEN ? AND ?
-      AND o.payment_status = 'completed' AND (o.status = 'shipped' OR o.status = 'delivered')
-    GROUP BY DATE_FORMAT(o.order_date, '%Y-%m-%d')
-    ORDER BY o.order_date
-");
+        DATE_FORMAT(o.order_date, '%Y-%m-%d') AS day, 
+        COUNT(DISTINCT o.id) AS order_count, 
+        SUM(oi.quantity) AS book_count, 
+        SUM(oi.price * oi.quantity) AS total_amount, 
+        SUM(oi.price * oi.quantity) - o.discount_amount AS gross_amount,  -- Apply the discount to the entire order
+        (SUM(oi.price * oi.quantity) - o.discount_amount) * ? AS net_amount,  -- 85% of amount_after_discount
+        o.discount_amount
+    FROM 
+        orders o 
+    JOIN 
+        order_items oi ON o.id = oi.order_id 
+    JOIN 
+        books b ON oi.book_id = b.id 
+    WHERE 
+        b.seller_id = ? 
+        AND o.order_date BETWEEN ? AND ? 
+        AND o.payment_status = 'completed' 
+        AND (o.status = 'shipped' OR o.status = 'delivered') 
+    GROUP BY 
+        DATE_FORMAT(o.order_date, '%Y-%m-%d') 
+    ORDER BY 
+        o.order_date;");
 $stmt->execute([$sellerRate, $user['id'], $startDate, $endDate]);
 $dailyEarnings = $stmt->fetchAll();
 
 // Calculate totals
 $totalOrders = 0;
 $totalBooks = 0;
+$totalAll = 0;
+$totalDiscount = 0;
 $totalGross = 0;
 $totalNet = 0;
 
 foreach ($dailyEarnings as $day) {
     $totalOrders += $day['order_count'];
     $totalBooks += $day['book_count'];
+    $totalAll += $day['total_amount'];
+    $totalDiscount += $day['discount_amount'];
     $totalGross += $day['gross_amount'];
     $totalNet += $day['net_amount'];
 }
@@ -64,7 +76,7 @@ foreach ($dailyEarnings as $day) {
 $monthlyStmt = $pdo->prepare("
     SELECT 
         DATE_FORMAT(o.order_date, '%Y-%m') as month,
-        SUM(oi.price * oi.quantity * ?) as net_amount
+        (SUM(oi.price * oi.quantity) - SUM(DISTINCT o.discount_amount)) * ? as net_amount
     FROM orders o
     JOIN order_items oi ON o.id = oi.order_id
     JOIN books b ON oi.book_id = b.id
@@ -153,6 +165,7 @@ include '../includes/header.php';
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-gray-500">Net Earnings</h3>
             <p class="text-2xl font-bold text-sky-600">$<?php echo number_format($totalNet, 2); ?></p>
+            <p class="text-xs text-gray-500">(<?php echo ((1 - PLATFORM_COMMISSION_RATE) * 100); ?>% of Gross Revenue)</p>
         </div>
     </div>
     
@@ -180,6 +193,8 @@ include '../includes/header.php';
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Books Sold</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gross Amount</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Net Amount</th>
                     </tr>
@@ -190,6 +205,8 @@ include '../includes/header.php';
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo date('M j, Y', strtotime($day['day'])); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo $day['order_count']; ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?php echo $day['book_count']; ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap">$<?php echo number_format($day['total_amount'], 2); ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap">$<?php echo number_format($day['discount_amount'], 2); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">$<?php echo number_format($day['gross_amount'], 2); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">$<?php echo number_format($day['net_amount'], 2); ?></td>
                     </tr>
@@ -206,6 +223,8 @@ include '../includes/header.php';
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Totals</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?php echo $totalOrders; ?></th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?php echo $totalBooks; ?></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">$<?php echo number_format($totalAll, 2); ?></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">$<?php echo number_format($totalDiscount, 2); ?></th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">$<?php echo number_format($totalGross, 2); ?></th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">$<?php echo number_format($totalNet, 2); ?></th>
                     </tr>

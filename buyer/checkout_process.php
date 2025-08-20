@@ -19,10 +19,17 @@
         $stmt->execute([$_SESSION['applied_coupon']]);
         $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($coupon && $_SESSION['cart_total'] >= $coupon['min_order_amount']) {
+        if ($coupon && $_SESSION['cart_total'] >= $coupon['min_order_amount'] && ($coupon['times_used'] !== $coupon['usage_limit'] || $coupon['times_used'] < $coupon['usage_limit'])) {
             $discountAmount = ($coupon['type'] === 'percent')
                 ? ($_SESSION['cart_total'] * ($coupon['amount'] / 100))
                 : $coupon['amount'];
+
+            // coupon usage
+            $stmt = $pdo->prepare("UPDATE `coupons` SET `times_used`= ? WHERE `id` = ?");
+            $stmt->execute([$coupon['times_used'] + 1, $_SESSION['applied_coupon']]);
+    
+            $stmt = $pdo->prepare("INSERT INTO `coupon_usages`(`coupon_id`, `buyer_id`) VALUES (?,?)");
+            $stmt->execute([$_SESSION['applied_coupon'], $_SESSION['user_id']]);
         }
     }
 
@@ -38,14 +45,15 @@
         $pdo->beginTransaction();
 
         // Create order
-        $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, total_amount, payment_method, payment_status, shipping_address, coupon_id) 
-                            VALUES (?, ?, ?, 'completed', ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, total_amount, payment_method, payment_status, shipping_address, coupon_id, discount_amount) 
+                            VALUES (?, ?, ?, 'completed', ?, ?, ?)");
         $stmt->execute([
             $_SESSION['user_id'],
             $finalTotal,
             $paymentMethod,
             $_POST['shipping_address'],
-            $_SESSION['applied_coupon'] ?? null
+            $_SESSION['applied_coupon'] ?? null,
+            $discountAmount
         ]);
         $orderId = $pdo->lastInsertId();
 
