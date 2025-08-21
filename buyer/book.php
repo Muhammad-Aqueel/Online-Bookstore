@@ -233,7 +233,7 @@
                         <?php if ($book['is_physical'] && $book['is_digital']): ?>
                             <div class="mb-4">
                                 <label class="flex items-center">
-                                    <input type="checkbox" name="is_digital" class="mr-2">
+                                    <input type="checkbox" name="is_digital" id="is_digital" class="mr-2">
                                     <span>Digital version only</span>
                                 </label>
                             </div>
@@ -244,9 +244,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center">
                                 <label class="mr-2">Quantity:</label>
-                                <input type="number" name="quantity" value="<?php echo ($book['stock']) === 0 ? 0 : 1; ?>" min="1" 
-                                       max="<?php echo ($book['is_physical']) ? $book['stock'] : '99'; ?>" 
-                                       class="w-16 px-2 py-1 border rounded">
+                                <input type="number" name="quantity" id="quantity" value="<?php echo ($book['stock']) === 0 && $book['is_physical'] ? 0 : 1; ?>" min="1" max="<?php echo ($book['is_physical']) ? $book['stock'] : '99'; ?>" class="w-16 px-2 py-1 border rounded">
                             </div>
                             <button type="submit" name="add_to_cart" class="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700">
                                 Add to Cart
@@ -323,4 +321,24 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const isDigital = document.getElementById("is_digital");
+        const quantity = document.getElementById("quantity");
+
+        // Save original values (from PHP)
+        const defaultValue = quantity.value;
+        const defaultMax   = quantity.max;
+
+        isDigital.addEventListener("change", function () {
+            if (this.checked) {
+                quantity.value = 1;
+                quantity.max = 99;
+            } else {
+                quantity.value = defaultValue;
+                quantity.max = defaultMax;
+            }
+        });
+    });
+</script>
 <?php include '../includes/footer.php'; ?>
