@@ -21,13 +21,18 @@ $ordersCount = $pdo->prepare("SELECT COUNT(DISTINCT o.id)
 $ordersCount->execute([$user['id']]);
 $ordersCount = $ordersCount->fetchColumn();
 
-$revenue = $pdo->prepare("SELECT SUM(oi.price * oi.quantity) 
-                         FROM order_items oi
-                         JOIN books b ON oi.book_id = b.id
-                         JOIN orders o ON oi.order_id = o.id
-                         WHERE b.seller_id = ? AND o.payment_status = 'completed' AND (status = 'shipped' OR status = 'delivered')");
+$revenue = $pdo->prepare("SELECT SUM(oi.price * oi.quantity), o.discount_amount, o.total_amount
+                            FROM order_items oi
+                            JOIN books b ON oi.book_id = b.id
+                            JOIN orders o ON oi.order_id = o.id
+                            WHERE b.seller_id = ? AND o.payment_status = 'completed'
+                            GROUP BY oi.order_id;");
 $revenue->execute([$user['id']]);
-$revenue = $revenue->fetchColumn();
+$revenueAll = $revenue->fetchAll();
+$revenue = 0;
+foreach ($revenueAll as $r) {
+    $revenue += number_format($r['total_amount'], 2);
+}
 
 // Recent orders
 $recentOrders = $pdo->prepare("SELECT o.*, u.username as buyer_name 

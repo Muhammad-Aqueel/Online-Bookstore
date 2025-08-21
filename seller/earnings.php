@@ -29,30 +29,37 @@ $sellerRate = 1 - PLATFORM_COMMISSION_RATE;
 
 // Get earnings data for the selected period
 $stmt = $pdo->prepare("
-    SELECT 
-        DATE_FORMAT(o.order_date, '%Y-%m-%d') AS day, 
-        COUNT(DISTINCT o.id) AS order_count, 
-        SUM(oi.quantity) AS book_count, 
-        SUM(oi.price * oi.quantity) AS total_amount, 
-        SUM(oi.price * oi.quantity) - o.discount_amount AS gross_amount,  -- Apply the discount to the entire order
-        (SUM(oi.price * oi.quantity) - o.discount_amount) * ? AS net_amount,  -- 85% of amount_after_discount
-        o.discount_amount
-    FROM 
-        orders o 
-    JOIN 
-        order_items oi ON o.id = oi.order_id 
-    JOIN 
-        books b ON oi.book_id = b.id 
-    WHERE 
-        b.seller_id = ? 
-        AND o.order_date BETWEEN ? AND ? 
-        AND o.payment_status = 'completed' 
-        AND (o.status = 'shipped' OR o.status = 'delivered') 
-    GROUP BY 
-        DATE_FORMAT(o.order_date, '%Y-%m-%d') 
-    ORDER BY 
-        o.order_date;");
-$stmt->execute([$sellerRate, $user['id'], $startDate, $endDate]);
+-- 1) Get one row per order (for this seller), then
+-- 2) Sum those rows by day.
+WITH order_totals AS (
+  SELECT
+      o.id                                AS order_id,
+      DATE(o.order_date)                  AS day,
+      SUM(oi.quantity)                    AS book_count,
+      SUM(oi.price * oi.quantity)         AS total_amount,
+      o.discount_amount                   AS discount_amount
+  FROM orders o
+  JOIN order_items oi ON oi.order_id = o.id
+  JOIN books b        ON b.id = oi.book_id
+  WHERE b.seller_id = ?
+    AND o.order_date >= ?       -- inclusive
+    AND o.order_date <  ?       -- end-exclusive to cover the whole month
+    AND o.payment_status = 'completed'
+    AND o.status IN ('shipped','delivered')
+  GROUP BY o.id, DATE(o.order_date), o.discount_amount
+)
+SELECT
+    DATE_FORMAT(day, '%Y-%m-%d')                             AS day,
+    COUNT(*)                                                 AS order_count,
+    SUM(book_count)                                         AS book_count,
+    SUM(total_amount)                                       AS total_amount,
+    SUM(total_amount - discount_amount)                     AS gross_amount,
+    ? * SUM(total_amount - discount_amount)              AS net_amount,
+    SUM(discount_amount)                                    AS discount_amount
+FROM order_totals
+GROUP BY day
+ORDER BY day;");
+$stmt->execute([$user['id'], $startDate, $endDate, $sellerRate]);
 $dailyEarnings = $stmt->fetchAll();
 
 // Calculate totals
@@ -74,19 +81,29 @@ foreach ($dailyEarnings as $day) {
 
 // Get monthly earnings for the year (for chart)
 $monthlyStmt = $pdo->prepare("
-    SELECT 
-        DATE_FORMAT(o.order_date, '%Y-%m') as month,
-        (SUM(oi.price * oi.quantity) - SUM(DISTINCT o.discount_amount)) * ? as net_amount
+WITH order_totals AS (
+    SELECT
+        o.id                           AS order_id,
+        DATE_FORMAT(o.order_date, '%Y-%m') AS month,
+        SUM(oi.quantity)               AS book_count,
+        SUM(oi.price * oi.quantity)    AS total_amount,
+        o.discount_amount              AS discount_amount
     FROM orders o
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN books b ON oi.book_id = b.id
-    WHERE b.seller_id = ? 
-      AND DATE_FORMAT(o.order_date, '%Y') = ?
-      AND o.payment_status = 'completed' AND (o.status = 'shipped' OR o.status = 'delivered')
-    GROUP BY DATE_FORMAT(o.order_date, '%Y-%m')
-    ORDER BY month
-");
-$monthlyStmt->execute([$sellerRate, $user['id'], $selectedYear]);
+    JOIN order_items oi ON oi.order_id = o.id
+    JOIN books b        ON b.id = oi.book_id
+    WHERE b.seller_id = ?
+      AND YEAR(o.order_date) = ?
+      AND o.payment_status = 'completed'
+      AND o.status IN ('shipped','delivered')
+    GROUP BY o.id, DATE_FORMAT(o.order_date, '%Y-%m'), o.discount_amount
+  )
+  SELECT
+      month,
+      ? * SUM(total_amount - discount_amount)     AS net_amount
+  FROM order_totals
+  GROUP BY month
+  ORDER BY month;");
+$monthlyStmt->execute([$user['id'], $selectedYear, $sellerRate]);
 $monthlyEarnings = $monthlyStmt->fetchAll();
 
 // Prepare data for chart
@@ -153,6 +170,7 @@ include '../includes/header.php';
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-gray-500">Total Orders</h3>
             <p class="text-2xl font-bold text-sky-600"><?php echo $totalOrders; ?></p>
+            <p class="text-xs text-gray-500">(Completed)</p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-gray-500">Books Sold</h3>
@@ -213,7 +231,7 @@ include '../includes/header.php';
                     <?php endforeach; ?>
                     <?php if (empty($dailyEarnings)): ?>
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">No earnings data for this period</td>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">No earnings data for this period</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
